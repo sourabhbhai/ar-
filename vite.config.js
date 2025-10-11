@@ -8,17 +8,16 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig({
   plugins: [react()],
-  base: "/", // 👈 IMPORTANT for correct asset paths
+  base: "/", // 👈 important for Render
+  root: path.resolve(__dirname, "client"), // 👈 entry folder
+  build: {
+    outDir: path.resolve(__dirname, "dist"), // 👈 final build output
+    emptyOutDir: true,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client", "src"),
-      "@shared": path.resolve(__dirname, "shared"),
       "@assets": path.resolve(__dirname, "attached_assets"),
     },
-  },
-  root: path.resolve(__dirname, "client"),
-  build: {
-    outDir: path.resolve(__dirname, "client", "dist"), // 👈 simpler output path
-    emptyOutDir: true,
   },
 });
