@@ -1,7 +1,3 @@
-// src/lib/auth.ts
-// Dev-only multiple users
-// WARNING: DEV ONLY — remove or guard before production
-
 export type User = {
   id: string
   username: string
@@ -53,17 +49,7 @@ const DEV_CREDENTIALS: Record<string, { password: string; user: User }> = {
 const DEV_USER_KEY = 'dev_auth_user'
 
 function isDevMode(): boolean {
-  // Vite
-  // @ts-ignore
-  if (
-    typeof import !== 'undefined' &&
-    typeof (import.meta as any) !== 'undefined' &&
-    (import.meta as any).env
-  ) {
-    // @ts-ignore
-    return (import.meta as any).env.MODE === 'development'
-  }
-  // fallback (CRA)
+  // This works everywhere: Vite, CRA, SSR, Node, etc
   // @ts-ignore
   return process.env.NODE_ENV === 'development'
 }
