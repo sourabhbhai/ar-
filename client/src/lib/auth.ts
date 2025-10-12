@@ -55,15 +55,14 @@ const DEV_USER_KEY = 'dev_auth_user'
 function isDevMode(): boolean {
   // Vite
   // @ts-ignore
- if (
-  typeof import !== 'undefined' &&
-  typeof (import.meta as any) !== 'undefined' &&
-  (import.meta as any).env
-) {
-  // @ts-ignore
-  return (import.meta as any).env.MODE === 'development'
-}
-
+  if (
+    typeof import !== 'undefined' &&
+    typeof (import.meta as any) !== 'undefined' &&
+    (import.meta as any).env
+  ) {
+    // @ts-ignore
+    return (import.meta as any).env.MODE === 'development'
+  }
   // fallback (CRA)
   // @ts-ignore
   return process.env.NODE_ENV === 'development'
