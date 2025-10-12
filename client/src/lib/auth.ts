@@ -48,10 +48,9 @@ const DEV_CREDENTIALS: Record<string, { password: string; user: User }> = {
 
 const DEV_USER_KEY = 'dev_auth_user'
 
+// Always return true for testing/demo on any server!
 function isDevMode(): boolean {
-  // This works everywhere: Vite, CRA, SSR, Node, etc
-  // @ts-ignore
-  return process.env.NODE_ENV === 'development'
+  return true;
 }
 
 export class AuthService {
