@@ -11,29 +11,38 @@ export interface User {
 export class AuthService {
   // LOGIN
   static async login(email: string, password: string): Promise<User> {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-    if (error || !data.user) throw new Error(error?.message || 'Login failed')
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+      if (error || !data.user) throw new Error(error?.message || 'Login failed')
 
-    // Superadmin check
-    const { data: saData, error: saError } = await supabase
-      .from('superadmins')
-      .select('username')
-      .eq('auth_id', data.user.id)
-      .maybeSingle()
+      // Superadmin check
+      const { data: saData, error: saError } = await supabase
+        .from('superadmins')
+        .select('username')
+        .eq('auth_id', data.user.id)
+        .maybeSingle()
 
-    if (saError || !saData) throw new Error('Not a superadmin')
+      if (saError || !saData) throw new Error('Not a superadmin')
 
-    return {
-      id: data.user.id,
-      email: data.user.email ?? '',
-      username: saData.username ?? '',
-      role: 'super_admin'
+      return {
+        id: data.user.id,
+        email: data.user.email ?? '',
+        username: saData.username ?? '',
+        role: 'super_admin'
+      }
+    } catch (err) {
+      console.error('Login failed:', err)
+      throw err
     }
   }
 
   // LOGOUT
   static async logout(): Promise<void> {
-    await supabase.auth.signOut()
+    try {
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error('Logout failed:', err)
+    }
   }
 
   // GET CURRENT USER (safe)
@@ -58,7 +67,8 @@ export class AuthService {
         username: saData?.username ?? '',
         role: 'super_admin'
       }
-    } catch {
+    } catch (err) {
+      console.error('getCurrentUser failed:', err)
       return null
     }
   }
