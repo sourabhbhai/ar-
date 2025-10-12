@@ -1,40 +1,26 @@
-import { Switch, Route } from "wouter";
-import { queryClient } from "./lib/queryClient";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import NotFound from "@/pages/not-found";
-import AdminDashboard from "@/pages/admin/dashboard";
-import AdminLogin from "@/pages/admin/login";
-import OwnerDashboard from "@/pages/owner/dashboard";
-import OwnerLogin from "@/pages/owner/login";
-import CustomerMenu from "@/pages/customer/menu";
-import LandingPage from "@/pages/landingpage";
+import { useEffect, useState } from 'react'
+import { AuthService, User } from './auth'
 
-function Router() {
-  return (
-    <Switch>
-      <Route path="/" component={LandingPage} />
-      <Route path="/admin" component={AdminLogin} />
-      <Route path="/admin/dashboard" component={AdminDashboard} />
-      <Route path="/owner" component={OwnerLogin} />
-      <Route path="/owner/dashboard" component={OwnerDashboard} />
-      <Route path="/menu/:restaurantId" component={CustomerMenu} />
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-    </Switch>
-  );
+export default function App() {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const loggedUser = await AuthService.getCurrentUser()
+        setUser(loggedUser)
+      } catch (err) {
+        console.error('Auth load failed:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadUser()
+  }, [])
+
+  if (loading) return <div>Loading...</div>
+  if (!user) return <div>Please log in</div>
+
+  return <div>Welcome {user.username}</div>
 }
-
-function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
-    </QueryClientProvider>
-  );
-}
-
-export default App;
