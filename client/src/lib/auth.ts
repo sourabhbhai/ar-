@@ -9,7 +9,9 @@ export interface User {
 }
 
 export class AuthService {
-  // LOGIN
+  private static readonly USER_KEY = 'auth_user'
+
+  // Login using Supabase
   static async login(email: string, password: string): Promise<User> {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password })
@@ -24,28 +26,33 @@ export class AuthService {
 
       if (saError || !saData) throw new Error('Not a superadmin')
 
-      return {
+      const user: User = {
         id: data.user.id,
         email: data.user.email ?? '',
         username: saData.username ?? '',
         role: 'super_admin'
       }
+
+      // Store in localStorage
+      localStorage.setItem(this.USER_KEY, JSON.stringify(user))
+      return user
     } catch (err) {
       console.error('Login failed:', err)
       throw err
     }
   }
 
-  // LOGOUT
+  // Logout
   static async logout(): Promise<void> {
     try {
       await supabase.auth.signOut()
+      localStorage.removeItem(this.USER_KEY)
     } catch (err) {
       console.error('Logout failed:', err)
     }
   }
 
-  // GET CURRENT USER (safe)
+  // Get current user safely
   static async getCurrentUser(): Promise<User | null> {
     try {
       const {
@@ -71,5 +78,11 @@ export class AuthService {
       console.error('getCurrentUser failed:', err)
       return null
     }
+  }
+
+  // Get locally stored user
+  static getStoredUser(): User | null {
+    const userStr = localStorage.getItem(this.USER_KEY)
+    return userStr ? JSON.parse(userStr) : null
   }
 }
