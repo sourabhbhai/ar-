@@ -1,3 +1,4 @@
+// (Paste this in place of your current owner login page)
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -21,16 +22,14 @@ export default function OwnerLogin() {
 
     try {
       const response = await AuthService.login(username, password);
-      
-      if (response.user.role === 'restaurant_owner') {
+      if (response.role === 'restaurant_owner') {
         setLocation('/owner/dashboard');
-      } else if (response.user.role === 'super_admin') {
+      } else if (response.role === 'super_admin') {
         setLocation('/admin/dashboard');
       }
-      
       toast({
         title: "Login successful",
-        description: `Welcome back, ${response.user.username}!`,
+        description: `Welcome back, ${response.username}!`,
       });
     } catch (error: any) {
       toast({
@@ -45,27 +44,9 @@ export default function OwnerLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-500 via-pink-500 to-rose-500 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-yellow-400/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-red-400/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-pink-400/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
+      {/* ... animated background ... */}
       <div className="w-full max-w-md space-y-8 relative z-10">
-        {/* Logo/Header */}
-        <div className="text-center">
-          <div className="mx-auto w-28 h-28 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mb-6 shadow-2xl border border-white/30">
-            <div className="relative">
-              <ChefHat className="w-12 h-12 text-white" />
-              <Sparkles className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1 animate-pulse" />
-            </div>
-          </div>
-          <h1 className="text-4xl font-bold text-white font-serif drop-shadow-lg">Restaurant Owner</h1>
-          <p className="text-white/90 mt-2 text-lg">Order Management Portal</p>
-        </div>
-
-        {/* Login Form */}
+        {/* Logo/Header ... */}
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-xl" data-testid="login-form">
           <CardHeader className="space-y-1 pb-6 pt-8">
             <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
@@ -128,27 +109,33 @@ export default function OwnerLogin() {
                 )}
               </Button>
             </form>
-            
             {/* Demo Credentials */}
             <div className="mt-6 p-5 bg-gradient-to-br from-orange-50 to-pink-50 rounded-xl border-2 border-orange-200">
               <p className="text-xs text-orange-700 mb-3 font-bold uppercase tracking-wide">Demo Credentials:</p>
               <div className="p-3 bg-white/80 rounded-lg border border-orange-200">
-                <span className="text-orange-600 font-bold block mb-1">Owner:</span>
+                <span className="text-orange-600 font-bold block mb-1">Owner 1:</span>
                 <div className="font-mono text-gray-700 text-sm">
-                  <span className="block">Username: <span className="font-semibold">marco.rossi</span></span>
-                  <span className="block">Password: <span className="font-semibold">owner123</span></span>
+                  <span className="block">Username: <span className="font-semibold">owner1</span></span>
+                  <span className="block">Password: <span className="font-semibold">ownerpass</span></span>
+                </div>
+              </div>
+              <div className="p-3 bg-white/80 rounded-lg border border-orange-200 mt-4">
+                <span className="text-orange-600 font-bold block mb-1">Owner 2:</span>
+                <div className="font-mono text-gray-700 text-sm">
+                  <span className="block">Username: <span className="font-semibold">owner2</span></span>
+                  <span className="block">Password: <span className="font-semibold">owner2pass</span></span>
+                </div>
+              </div>
+              <div className="p-3 bg-white/80 rounded-lg border border-orange-200 mt-4">
+                <span className="text-orange-600 font-bold block mb-1">Super Admin:</span>
+                <div className="font-mono text-gray-700 text-sm">
+                  <span className="block">Username: <span className="font-semibold">admin</span></span>
+                  <span className="block">Password: <span className="font-semibold">admin1234</span></span>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-sm text-white/90 font-medium drop-shadow">
-            📊 Real-time order management system
-          </p>
-        </div>
       </div>
     </div>
   );
