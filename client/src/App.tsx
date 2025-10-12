@@ -62,22 +62,14 @@ function Router() {
     );
   }
 
-  // Render dashboard based on role
+  // All main routes are always available
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
-      {user.role === "super_admin" && (
-        <>
-          <Route path="/admin" component={AdminLogin} />
-          <Route path="/admin/dashboard" component={AdminDashboard} />
-        </>
-      )}
-      {user.role === "restaurant_owner" && (
-        <>
-          <Route path="/owner" component={OwnerLogin} />
-          <Route path="/owner/dashboard" component={OwnerDashboard} />
-        </>
-      )}
+      <Route path="/admin" component={AdminLogin} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
+      <Route path="/owner" component={OwnerLogin} />
+      <Route path="/owner/dashboard" component={OwnerDashboard} />
       <Route path="/menu/:restaurantId" component={CustomerMenu} />
       <Route component={NotFound} />
     </Switch>
