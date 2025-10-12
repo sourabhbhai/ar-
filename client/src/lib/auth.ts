@@ -1,4 +1,4 @@
-import { supabase } from '../supabaseclient'
+import { supabase } from './supabaseclient'
 
 export interface User {
   id: string
@@ -9,42 +9,40 @@ export interface User {
 }
 
 export class AuthService {
-  // -------------------
   // LOGIN
   static async login(email: string, password: string): Promise<User> {
-    // Supabase Auth
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) throw new Error(error.message)
     if (!data.user) throw new Error('No user returned from Supabase')
 
-    // Superadmin table check
+    // Superadmin check
     const { data: saData, error: saError } = await supabase
       .from('superadmins')
-      .select('*')
+      .select('username')
       .eq('auth_id', data.user.id)
-      .single() // exactly one row expected
+      .maybeSingle() // safer than .single(), returns null if not found
 
-    if (saError || !saData) throw new Error('Not a superadmin')
+    if (saError) throw new Error('Error checking superadmin table')
+    if (!saData) throw new Error('Not a superadmin')
 
-    // Return safe user object
     return {
       id: data.user.id,
-      email: data.user.email!,
-      username: saData.username,
+      email: data.user.email ?? '',
+      username: saData.username ?? '',
       role: 'super_admin'
     }
   }
 
-  // -------------------
   // LOGOUT
-  static async logout() {
+  static async logout(): Promise<void> {
     await supabase.auth.signOut()
   }
 
-  // -------------------
-  // GET CURRENT TOKEN
-  static getToken() {
-    return supabase.auth.session()?.access_token || null
+  // GET TOKEN
+  static getToken(): string | null {
+    // v2 syntax
+    const session = supabase.auth.getSession ? (supabase.auth.getSession() as any) : null
+    return session?.data?.session?.access_token ?? null
   }
 }
