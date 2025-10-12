@@ -71,18 +71,33 @@ export class AuthService {
     localStorage.removeItem(DEV_USER_KEY)
   }
 
-static async getCurrentUser(): Promise<User | null> {
-  if (isDevMode()) {
-    const s = localStorage.getItem(DEV_USER_KEY)
-    // Only parse if s is truthy and not just empty string
-    if (!s || s === "" || s === "undefined" || s === "null") return null
-    try {
-      return JSON.parse(s) as User
-    } catch {
-      localStorage.removeItem(DEV_USER_KEY)
-      return null
+  static async getCurrentUser(): Promise<User | null> {
+    if (isDevMode()) {
+      const s = localStorage.getItem(DEV_USER_KEY)
+      // Only parse if s is truthy and not just empty string
+      if (!s || s === "" || s === "undefined" || s === "null") return null
+      try {
+        return JSON.parse(s) as User
+      } catch {
+        localStorage.removeItem(DEV_USER_KEY)
+        return null
+      }
     }
+    return null
   }
-  return null
-}
+
+  // Synchronous helper for dashboard etc.
+  static getUser(): User | null {
+    if (isDevMode()) {
+      const s = localStorage.getItem(DEV_USER_KEY)
+      if (!s || s === "" || s === "undefined" || s === "null") return null
+      try {
+        return JSON.parse(s) as User
+      } catch {
+        localStorage.removeItem(DEV_USER_KEY)
+        return null
+      }
+    }
+    return null
+  }
 }
