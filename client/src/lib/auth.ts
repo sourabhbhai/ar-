@@ -56,7 +56,8 @@ function isDevMode(): boolean {
 export class AuthService {
   static async login(username: string, password: string): Promise<User> {
     if (isDevMode()) {
-      const entry = DEV_CREDENTIALS[username]
+      // Always handle trim + lowercase
+      const entry = DEV_CREDENTIALS[username.trim().toLowerCase()];
       if (entry && entry.password === password) {
         localStorage.setItem(DEV_USER_KEY, JSON.stringify(entry.user))
         return entry.user
