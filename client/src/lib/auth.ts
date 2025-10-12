@@ -1,88 +1,64 @@
-import { supabase } from './supabaseclient'
+import { apiRequest } from "./queryClient";
 
 export interface User {
-  id: string
-  email: string
-  username?: string
-  role: 'super_admin' | 'restaurant_owner'
-  restaurantId?: string
+  id: string;
+  username: string;
+  email: string;
+  role: 'super_admin' | 'restaurant_owner';
+  restaurantId?: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: User;
 }
 
 export class AuthService {
-  private static readonly USER_KEY = 'auth_user'
+  private static readonly TOKEN_KEY = 'auth_token';
+  private static readonly USER_KEY = 'auth_user';
 
-  // Login using Supabase
-  static async login(email: string, password: string): Promise<User> {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error || !data.user) throw new Error(error?.message || 'Login failed')
-
-      // Superadmin check
-      const { data: saData, error: saError } = await supabase
-        .from('superadmins')
-        .select('username')
-        .eq('auth_id', data.user.id)
-        .maybeSingle()
-
-      if (saError || !saData) throw new Error('Not a superadmin')
-
-      const user: User = {
-        id: data.user.id,
-        email: data.user.email ?? '',
-        username: saData.username ?? '',
-        role: 'super_admin'
-      }
-
-      // Store in localStorage
-      localStorage.setItem(this.USER_KEY, JSON.stringify(user))
-      return user
-    } catch (err) {
-      console.error('Login failed:', err)
-      throw err
-    }
+  static getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
-  // Logout
+  static getUser(): User | null {
+    const userStr = localStorage.getItem(this.USER_KEY);
+    return userStr ? JSON.parse(userStr) : null;
+  }
+
+  static setAuth(token: string, user: User): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
+  }
+
+  static clearAuth(): void {
+    localStorage.removeItem(this.TOKEN_KEY);
+    localStorage.removeItem(this.USER_KEY);
+  }
+
+  static isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  static async login(username: string, password: string): Promise<LoginResponse> {
+    const response = await apiRequest('POST', '/api/auth/login', { username, password });
+    const data = await response.json();
+    
+    this.setAuth(data.token, data.user);
+    return data;
+  }
+
   static async logout(): Promise<void> {
-    try {
-      await supabase.auth.signOut()
-      localStorage.removeItem(this.USER_KEY)
-    } catch (err) {
-      console.error('Logout failed:', err)
-    }
+    this.clearAuth();
   }
 
-  // Get current user safely
-  static async getCurrentUser(): Promise<User | null> {
-    try {
-      const {
-        data: { session },
-        error
-      } = await supabase.auth.getSession()
-
-      if (error || !session?.user) return null
-
-      const { data: saData } = await supabase
-        .from('superadmins')
-        .select('username')
-        .eq('auth_id', session.user.id)
-        .maybeSingle()
-
-      return {
-        id: session.user.id,
-        email: session.user.email ?? '',
-        username: saData?.username ?? '',
-        role: 'super_admin'
-      }
-    } catch (err) {
-      console.error('getCurrentUser failed:', err)
-      return null
-    }
+  static async getCurrentUser(): Promise<User> {
+    const response = await apiRequest('GET', '/api/auth/me');
+    return response.json();
   }
 
-  // Get locally stored user
-  static getStoredUser(): User | null {
-    const userStr = localStorage.getItem(this.USER_KEY)
-    return userStr ? JSON.parse(userStr) : null
+  static getAuthHeaders(): Record<string, string> {
+    const token = this.getToken();
+    return token ? { Authorization: `Bearer ${token}` } : {};
   }
 }
