@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AuthService, User } from './auth'
+import { AuthService, User } from './lib/auth'
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null)
