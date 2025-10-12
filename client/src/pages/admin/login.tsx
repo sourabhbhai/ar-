@@ -1,3 +1,4 @@
+// (Paste this in place of your current admin login page)
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -21,16 +22,14 @@ export default function AdminLogin() {
 
     try {
       const response = await AuthService.login(username, password);
-      
-      if (response.user.role === 'super_admin') {
+      if (response.role === 'super_admin') {
         setLocation('/admin/dashboard');
       } else {
         setLocation('/owner/dashboard');
       }
-      
       toast({
         title: "Login successful",
-        description: `Welcome back, ${response.user.username}!`,
+        description: `Welcome back, ${response.username}!`,
       });
     } catch (error: any) {
       toast({
@@ -45,28 +44,9 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-violet-500 via-purple-500 to-fuchsia-500 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-pink-400/30 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-blue-400/30 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-yellow-400/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
+      {/* ... animated background ... */}
       <div className="w-full max-w-md space-y-8 relative z-10">
-        {/* Logo/Header */}
-        <div className="text-center">
-          <div className="mx-auto w-28 h-28 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mb-6 shadow-2xl border border-white/30">
-            <div className="relative">
-              <Store className="w-10 h-10 text-white" />
-              <Utensils className="w-7 h-7 text-white absolute -bottom-1 -right-1" />
-              <Sparkles className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1 animate-pulse" />
-            </div>
-          </div>
-          <h1 className="text-4xl font-bold text-white font-serif drop-shadow-lg">AR Restaurant</h1>
-          <p className="text-white/90 mt-2 text-lg">Management System</p>
-        </div>
-
-        {/* Login Form */}
+        {/* Logo/Header ... */}
         <Card className="shadow-2xl border-0 bg-white/95 backdrop-blur-xl" data-testid="login-form">
           <CardHeader className="space-y-1 pb-6 pt-8">
             <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-violet-600 to-fuchsia-600 bg-clip-text text-transparent">
@@ -129,7 +109,6 @@ export default function AdminLogin() {
                 )}
               </Button>
             </form>
-            
             {/* Demo Credentials */}
             <div className="mt-6 p-5 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl border-2 border-purple-200">
               <p className="text-xs text-purple-700 mb-3 font-bold uppercase tracking-wide">Demo Credentials:</p>
@@ -137,28 +116,28 @@ export default function AdminLogin() {
                 <div className="p-3 bg-white/80 rounded-lg border border-purple-200">
                   <span className="text-purple-600 font-bold block mb-1">Super Admin:</span>
                   <div className="font-mono text-gray-700">
-                    <span className="block">Username: <span className="font-semibold">superadmin</span></span>
-                    <span className="block">Password: <span className="font-semibold">admin123</span></span>
+                    <span className="block">Username: <span className="font-semibold">admin</span></span>
+                    <span className="block">Password: <span className="font-semibold">admin1234</span></span>
                   </div>
                 </div>
                 <div className="p-3 bg-white/80 rounded-lg border border-purple-200">
                   <span className="text-purple-600 font-bold block mb-1">Restaurant Owner:</span>
                   <div className="font-mono text-gray-700">
-                    <span className="block">Username: <span className="font-semibold">marco.rossi</span></span>
-                    <span className="block">Password: <span className="font-semibold">owner123</span></span>
+                    <span className="block">Username: <span className="font-semibold">owner1</span></span>
+                    <span className="block">Password: <span className="font-semibold">ownerpass</span></span>
+                  </div>
+                </div>
+                <div className="p-3 bg-white/80 rounded-lg border border-purple-200">
+                  <span className="text-purple-600 font-bold block mb-1">Restaurant Owner:</span>
+                  <div className="font-mono text-gray-700">
+                    <span className="block">Username: <span className="font-semibold">owner2</span></span>
+                    <span className="block">Password: <span className="font-semibold">owner2pass</span></span>
                   </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="text-center">
-          <p className="text-sm text-white/90 font-medium drop-shadow">
-            🔒 Secure AR restaurant management platform
-          </p>
-        </div>
       </div>
     </div>
   );
