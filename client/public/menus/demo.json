@@ -1,0 +1,21 @@
+{
+  "restaurant": "Demo Bhojan",
+  "items": [
+    {
+      "id": "b1",
+      "name": "Butter Chicken",
+      "description": "Rich tomato and butter gravy with tender chicken pieces.",
+      "price": 240,
+      "glb": "/models/butter-chicken.glb",
+      "usdz": "/models/butter-chicken.usdz"
+    },
+    {
+      "id": "p1",
+      "name": "Paneer Tikka",
+      "description": "Smoky marinated paneer cubes grilled to perfection.",
+      "price": 180,
+      "glb": "/models/paneer-tikka.glb",
+      "usdz": ""
+    }
+  ]
+}
