@@ -79,24 +79,93 @@ export default function AdminDashboard() {
     });
   };
 
+  // NEW: production-friendly QR generator (no print popup)
+  // This function opens a new tab showing a large QR image and provides a Download button.
+  // It tries to fetch the QR image as a blob and trigger a download; if fetch fails due to CORS, it falls back to opening the image directly.
   const generateQRCode = async (restaurantId: string) => {
-    // Demo QR: show menu link only
+    const restaurant = (restaurants || []).find((r: any) => r.id === restaurantId) ?? { name: restaurantId, cuisine: "" };
     const menuUrl = `${window.location.origin}/menu/${restaurantId}`;
-    const qrDemo = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(menuUrl)}&size=200x200`;
-    const newWindow = window.open('', '_blank');
-    if (newWindow) {
-      newWindow.document.write(`
-        <html>
-          <head><title>QR Code - Restaurant Menu</title></head>
-          <body style="display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: Arial, sans-serif;">
-            <h2 style="color: #7c3aed">Restaurant Menu QR Code</h2>
-            <img src="${qrDemo}" alt="QR Code" style="border: 2px solid #a21caf; padding: 10px; background: #faf5ff;" />
-            <p style="margin: 16px 0;">URL: <a href="${menuUrl}" target="_blank">${menuUrl}</a></p>
-          </body>
-        </html>
-      `);
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?data=${encodeURIComponent(menuUrl)}&size=1200x1200`;
+
+    const win = window.open("", "_blank", "noopener,noreferrer");
+    if (!win) {
+      // If popup blocked, open QR image directly
+      window.open(qrImageUrl, "_blank");
+      return;
     }
+
+    win.document.write(`
+      <html>
+        <head>
+          <title>QR Code - ${escapeHtml(restaurant.name)}</title>
+          <meta name="viewport" content="width=device-width,initial-scale=1">
+          <style>
+            body { font-family: Arial, Helvetica, sans-serif; margin:20px; color:#111; background:#f7f7fb }
+            .card { max-width:720px; margin:0 auto; text-align:center; padding:20px; border-radius:12px; box-shadow:0 6px 24px rgba(0,0,0,0.06); background:#fff }
+            .qr { width:360px; height:360px; border:8px solid #fff; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
+            .meta { margin-top:12px; color:#444; font-size:14px; word-break:break-all }
+            .actions { margin-top:18px; display:flex; gap:12px; justify-content:center }
+            button { padding:10px 16px; border-radius:8px; border:1px solid #ddd; background:#f8fafc; cursor:pointer; font-weight:600 }
+            button.primary { background:#7c3aed; color:#fff; border:none }
+            .hint { margin-top:10px; color:#666; font-size:13px }
+          </style>
+        </head>
+        <body>
+          <div class="card">
+            <h2 style="margin:0 0 8px 0">${escapeHtml(restaurant.name)} — Menu QR</h2>
+            <div style="margin-bottom:8px;color:#666">${escapeHtml((restaurant as any).cuisine || "")}</div>
+            <img id="qrImg" class="qr" src="${qrImageUrl}" alt="QR Code" />
+            <div class="meta">URL: <a href="${menuUrl}" target="_blank" rel="noopener noreferrer">${menuUrl}</a></div>
+            <div class="actions">
+              <button id="downloadBtn">Download PNG</button>
+              <button id="openBtn" class="primary">Open Image</button>
+            </div>
+            <div class="hint">Tip: For printing, use the downloaded PNG at high resolution (1200×1200).</div>
+          </div>
+
+          <script>
+            async function downloadQR() {
+              const img = document.getElementById('qrImg');
+              try {
+                const resp = await fetch(img.src);
+                if (!resp.ok) throw new Error('Failed to fetch image');
+                const blob = await resp.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = '${restaurantId}-qr.png';
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+              } catch (err) {
+                // fallback: open the image in new tab
+                window.open(img.src, '_blank');
+              }
+            }
+            document.getElementById('downloadBtn').addEventListener('click', downloadQR);
+            document.getElementById('openBtn').addEventListener('click', () => {
+              const img = document.getElementById('qrImg');
+              window.open(img.src, '_blank');
+            });
+          </script>
+        </body>
+      </html>
+    `);
+
+    win.document.close();
   };
+
+  // small helper used above to escape text placed into HTML
+  function escapeHtml(str: string | undefined) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
   // Calculate stats
   const totalRestaurants = restaurants.length;
